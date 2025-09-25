@@ -143,5 +143,5 @@ app.post('/api/delete', async (req, res) => {
 // Catch-all
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on ${PORT}`));
