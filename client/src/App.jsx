@@ -7,7 +7,7 @@ import {
   SignedIn,
   SignedOut,
   RedirectToSignIn,
-  UserButton,
+  UserButton
 } from "@clerk/clerk-react";
 
 const generateYears = () => {
@@ -22,8 +22,8 @@ function App() {
   const years = generateYears();
   const [selectedYear, setSelectedYear] = useState(years[0]);
 
-  // ✅ Use the VITE_API_BASE_URL environment variable
-  const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+  // ✅ Always use the Vercel/Render environment variable
+  const apiBase = import.meta.env.VITE_API_BASE_URL;
 
   return (
     <Router>
@@ -52,6 +52,7 @@ function App() {
               </SignedIn>
             }
           />
+
           {/* Namuna Page */}
           <Route
             path="/namuna/:year/:id"
