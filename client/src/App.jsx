@@ -3,12 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import YearSelector from "./components/YearSelector";
 import YearGrid from "./components/YearGrid";
 import NamunaPage from "./components/NamunaPage";
-import {
-  SignedIn,
-  SignedOut,
-  RedirectToSignIn,
-  UserButton
-} from "@clerk/clerk-react";
+import { SignedIn, SignedOut, RedirectToSignIn, UserButton } from "@clerk/clerk-react";
 
 const generateYears = () => {
   const years = [];
@@ -22,8 +17,10 @@ function App() {
   const years = generateYears();
   const [selectedYear, setSelectedYear] = useState(years[0]);
 
-  // ✅ Always use the Vercel/Render environment variable
-  const apiBase = import.meta.env.VITE_API_BASE_URL;
+  // ✅ Use env variable, fallback to localhost in dev
+  const apiBase =
+    import.meta.env.VITE_API_BASE_URL ||
+    (import.meta.env.MODE === "development" ? "http://localhost:5000" : "");
 
   return (
     <Router>
