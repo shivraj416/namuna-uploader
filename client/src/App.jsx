@@ -21,7 +21,10 @@ const generateYears = () => {
 function App() {
   const years = generateYears();
   const [selectedYear, setSelectedYear] = useState(years[0]);
-  const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
+  const apiBase =
+      import.meta.env.MODE === "development"
+      ? "http://localhost:5000"
+      : "https://namuna-uploader.onrender.com";
 
   return (
     <Router>
