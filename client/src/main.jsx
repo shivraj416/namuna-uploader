@@ -4,10 +4,10 @@ import App from "./App.jsx";
 import { ClerkProvider } from "@clerk/clerk-react";
 
 // Get Clerk frontend API key (from .env)
-const clerkFrontendApi = import.meta.env.VITE_CLERK_FRONTEND_API;
+const clerkFrontendApi = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 if (!clerkFrontendApi) {
-  throw new Error("Missing Clerk frontend API key. Add VITE_CLERK_FRONTEND_API to your .env file.");
+  throw new Error("Missing Clerk frontend API key. Add VITE_CLERK_PUBLISHABLE_KEY to your .env file.");
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(
