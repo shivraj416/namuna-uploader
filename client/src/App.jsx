@@ -17,9 +17,9 @@ function App() {
   const years = generateYears();
   const [selectedYear, setSelectedYear] = useState(years[0]);
 
-  // ✅ Use env variable, fallback to localhost in dev
+  // ✅ Correct env variable usage
   const apiBase =
-    import.meta.env.VITE_API_BASE_URL ||
+    import.meta.env.VITE_API_BASE ||
     (import.meta.env.MODE === "development" ? "http://localhost:5000" : "");
 
   return (
