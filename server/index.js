@@ -69,10 +69,16 @@ router.post('/upload', async (req, res) => {
 
     fs.unlinkSync(tempPath);
 
-    if (!filesDB[key]) filesDB[key] = [];
-    filesDB[key].push({ url: result.secure_url, public_id: result.public_id });
+    const fileData = {
+      url: result.secure_url,
+      public_id: result.public_id,
+      raw: { resource_type: result.resource_type, format: result.format },
+    };
 
-    return res.json({ url: result.secure_url, public_id: result.public_id });
+    if (!filesDB[key]) filesDB[key] = [];
+    filesDB[key].push(fileData);
+
+    return res.json(fileData);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Upload failed', details: err.message });
@@ -89,7 +95,7 @@ router.delete('/delete', async (req, res) => {
     await cloudinary.uploader.destroy(public_id);
 
     if (filesDB[key]) {
-      filesDB[key] = filesDB[key].filter(file => file.public_id !== public_id);
+      filesDB[key] = filesDB[key].filter(f => f.public_id !== public_id);
     }
 
     return res.json({ success: true });
