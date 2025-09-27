@@ -36,13 +36,13 @@ export default function UploadModal({
       const data = await response.json();
       setLoading(false);
 
-      if (response.ok && data?.success) {
+      if (response.ok && data?.url && data?.public_id) {
         // Send correct structure to NamunaPage
         if (onUploaded) {
           onUploaded({
             public_id: data.public_id,
             url: data.url,
-            raw: data.raw,
+            raw: { resource_type: file.type.startsWith("image") ? "image" : "raw", format: file.name.split(".").pop() },
           });
         }
         onClose();

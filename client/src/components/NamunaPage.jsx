@@ -18,7 +18,7 @@ export default function NamunaPage({ apiBase }) {
     const fetchNamuna = async () => {
       try {
         const encodedYear = encodeURIComponent(decodedYear);
-        const res = await fetch(`${apiBase}/namuna/${encodedYear}/${id}`);
+        const res = await fetch(`${apiBase}/api/namuna/${encodedYear}/${id}`);
         if (!res.ok) throw new Error("Failed to fetch Namuna data");
         const data = await res.json();
         setNamunaData(Array.isArray(data) ? data : []);
@@ -68,7 +68,6 @@ export default function NamunaPage({ apiBase }) {
 
   if (!decodedYear || !id) return <p>Invalid Namuna URL</p>;
 
-  // ✅ Display name from NAMUNA_MAP
   const displayName = NAMUNA_MAP[String(id)] || `Namuna ${id}`;
 
   return (
