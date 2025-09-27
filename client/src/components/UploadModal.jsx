@@ -30,7 +30,7 @@ export default function UploadModal({
     fd.append("namuna", namuna);
 
     try {
-      const token = await getToken(); // ✅ remove template
+      const token = await getToken(); // ✅ removed template
       const response = await fetch(`${apiBase}/api/upload`, {
         method: "POST",
         body: fd,
