@@ -4,144 +4,104 @@ const fileUpload = require('express-fileupload');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-const cloudinary = require('./cloudinary'); // configured cloudinary.v2
+const cloudinary = require('./cloudinary'); // your configured cloudinary.v2
 
 const app = express();
 
-// Enable CORS
-app.use(cors({ origin: true }));
-app.use(express.json());
-
-// Configure file upload
+// ✅ Fix CORS: allow Netlify frontend + local dev
 app.use(
-  fileUpload({
-    useTempFiles: true,
-    tempFileDir: path.join(__dirname, 'tmp'),
-    limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+  cors({
+    origin: [
+      "http://localhost:5173",         // Vite dev
+      "http://localhost:3000",         // React dev alt
+      "https://gramparule.netlify.app" // Netlify live site
+    ],
+    methods: ["GET", "POST", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// In-memory storage (replace with DB for production)
-const filesDB = {}; // key = "year:namuna" -> value = array of file metadata
+app.use(express.json());
+app.use(fileUpload());
 
-// Health check
-app.get('/', (req, res) => res.json({ ok: true }));
+// In-memory DB (use real DB later)
+let filesDB = {};
 
-// ✅ GET files for a specific Namuna (frontend /namuna/:year/:id calls this)
+/**
+ * ✅ GET files for a specific Namuna
+ */
 app.get('/namuna/:year/:id', (req, res) => {
-  const decodedYear = decodeURIComponent(req.params.year); // decode slashes
+  const decodedYear = decodeURIComponent(req.params.year); // "2025/26"
   const { id } = req.params;
   const key = `${decodedYear}:${id}`;
   const files = filesDB[key] || [];
-  return res.json(files); // always return array
+  return res.json(files);
 });
 
-// ✅ GET files (alternative route) – return plain array too
-app.get('/api/files', (req, res) => {
-  const { year, namuna } = req.query;
-  if (!year || !namuna) {
-    return res.status(400).json({ error: 'year and namuna are required' });
-  }
-
-  const key = `${year}:${namuna}`;
-  const files = filesDB[key] || [];
-  return res.json(files); // return array, not wrapped
-});
-
-// ✅ POST upload a file
-app.post('/api/upload', async (req, res) => {
+/**
+ * ✅ UPLOAD file to Cloudinary
+ */
+app.post('/upload', async (req, res) => {
   try {
     if (!req.files || !req.files.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    const file = req.files.file;
     const { year, namuna } = req.body;
+    const safeYear = decodeURIComponent(year); // "2025/26"
+    const key = `${safeYear}:${namuna}`;
 
-    if (!year || !namuna) {
-      return res.status(400).json({ error: 'year and namuna are required' });
-    }
+    const file = req.files.file;
+    const tempPath = path.join(__dirname, 'temp', file.name);
 
-    const folder = `namuna/${year.replace('/', '-')}/namuna-${String(
-      namuna
-    ).padStart(2, '0')}`;
+    // Save temporarily
+    await file.mv(tempPath);
 
-    const result = await cloudinary.uploader.upload(file.tempFilePath, {
-      folder,
-      use_filename: true,
-      unique_filename: false,
-      resource_type: 'auto',
+    // Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(tempPath, {
+      folder: `namuna/${safeYear}/${namuna}`,
+      resource_type: "auto",
     });
 
-    try {
-      fs.unlinkSync(file.tempFilePath);
-    } catch (e) {}
-
-    const fileMeta = {
-      success: true,
-      public_id: result.public_id,
-      url: result.secure_url,
-      raw: {
-        resource_type: result.resource_type,
-        format: result.format,
-        bytes: result.bytes,
-      },
-    };
+    // Clean up
+    fs.unlinkSync(tempPath);
 
     // Save in memory
-    const key = `${year}:${namuna}`;
     if (!filesDB[key]) filesDB[key] = [];
-    filesDB[key].push(fileMeta);
+    filesDB[key].push({ url: result.secure_url, public_id: result.public_id });
 
-    return res.json(fileMeta);
+    return res.json({ url: result.secure_url, public_id: result.public_id });
   } catch (err) {
-    console.error('Upload error:', err);
-    return res
-      .status(500)
-      .json({ error: 'upload_failed', details: err.message });
+    console.error(err);
+    return res.status(500).json({ error: 'Upload failed' });
   }
 });
 
-// ✅ POST delete a file
-app.post('/api/delete', async (req, res) => {
+/**
+ * ✅ DELETE file from Cloudinary
+ */
+app.delete('/delete', async (req, res) => {
   try {
-    const { public_id, year, namuna, resource_type } = req.body;
-    if (!public_id || !year || !namuna) {
-      return res
-        .status(400)
-        .json({ error: 'public_id, year, and namuna required' });
+    const { year, namuna, public_id } = req.body;
+    const safeYear = decodeURIComponent(year);
+    const key = `${safeYear}:${namuna}`;
+
+    // Delete from Cloudinary
+    await cloudinary.uploader.destroy(public_id);
+
+    // Remove from memory
+    if (filesDB[key]) {
+      filesDB[key] = filesDB[key].filter(file => file.public_id !== public_id);
     }
 
-    const type = resource_type || 'image';
-
-    const result = await cloudinary.uploader.destroy(public_id, {
-      resource_type: type,
-    });
-    console.log('Cloudinary delete result:', result);
-
-    if (result.result === 'ok' || result.result === 'not found') {
-      const key = `${year}:${namuna}`;
-      if (filesDB[key]) {
-        filesDB[key] = filesDB[key].filter(
-          (f) => f.public_id !== public_id
-        );
-      }
-      return res.json({ success: true });
-    } else {
-      return res
-        .status(500)
-        .json({ error: 'delete_failed', details: result });
-    }
+    return res.json({ success: true });
   } catch (err) {
-    console.error('Delete error:', err);
-    return res
-      .status(500)
-      .json({ error: 'delete_failed', details: err.message });
+    console.error(err);
+    return res.status(500).json({ error: 'Delete failed' });
   }
 });
-
-// Catch-all
-app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+});
