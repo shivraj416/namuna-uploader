@@ -5,7 +5,7 @@ const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
 const cloudinary = require("./cloudinary");
-const requireAuth = require("./verifyClerk"); // Clerk middleware
+const requireAuth = require("./verifyClerk"); // ✅ fixed
 
 const app = express();
 
@@ -94,7 +94,6 @@ router.delete("/delete", requireAuth, async (req, res) => {
   try {
     const { year, namuna, public_id } = req.body;
 
-    // ✅ Validate body
     if (!year || !namuna || !public_id) {
       return res.status(400).json({ error: "Missing required fields" });
     }
