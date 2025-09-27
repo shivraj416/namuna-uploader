@@ -17,7 +17,6 @@ function App() {
   const years = generateYears();
   const [selectedYear, setSelectedYear] = useState(years[0]);
 
-  // ✅ Correct env variable usage
   const apiBase =
     import.meta.env.VITE_API_BASE ||
     (import.meta.env.MODE === "development" ? "http://localhost:5000" : "");
@@ -32,12 +31,13 @@ function App() {
           </SignedIn>
         </header>
 
-        <Routes>
-          {/* Home Page */}
-          <Route
-            path="/"
-            element={
-              <SignedIn>
+        {/* All routes protected by Clerk */}
+        <SignedIn>
+          <Routes>
+            {/* Home Page */}
+            <Route
+              path="/"
+              element={
                 <>
                   <YearSelector
                     years={years}
@@ -46,30 +46,21 @@ function App() {
                   />
                   <YearGrid year={selectedYear} apiBase={apiBase} />
                 </>
-              </SignedIn>
-            }
-          />
+              }
+            />
 
-          {/* Namuna Page */}
-          <Route
-            path="/namuna/:year/:id"
-            element={
-              <SignedIn>
-                <NamunaPage apiBase={apiBase} />
-              </SignedIn>
-            }
-          />
+            {/* Namuna Page */}
+            <Route
+              path="/namuna/:year/:id"
+              element={<NamunaPage apiBase={apiBase} />}
+            />
+          </Routes>
+        </SignedIn>
 
-          {/* Redirect users not signed in */}
-          <Route
-            path="*"
-            element={
-              <SignedOut>
-                <RedirectToSignIn />
-              </SignedOut>
-            }
-          />
-        </Routes>
+        {/* Redirect anyone not signed in to Clerk signup/login */}
+        <SignedOut>
+          <RedirectToSignIn />
+        </SignedOut>
       </div>
     </Router>
   );
