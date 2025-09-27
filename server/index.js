@@ -48,7 +48,7 @@ router.get("/namuna/:year/:id", (req, res) => {
   return res.json(files);
 });
 
-// ✅ PROTECTED routes: upload
+// ✅ PROTECTED: Upload file
 router.post("/upload", requireAuth, async (req, res) => {
   try {
     if (!req.files || !req.files.file) {
@@ -89,7 +89,7 @@ router.post("/upload", requireAuth, async (req, res) => {
   }
 });
 
-// ✅ PROTECTED route: delete
+// ✅ PROTECTED: Delete file
 router.delete("/delete", requireAuth, async (req, res) => {
   try {
     const { year, namuna, public_id } = req.body;
@@ -102,8 +102,10 @@ router.delete("/delete", requireAuth, async (req, res) => {
     const safeYear = decodeURIComponent(year);
     const key = `${safeYear}:${namuna}`;
 
+    // Delete from Cloudinary
     await cloudinary.uploader.destroy(public_id);
 
+    // Remove from in-memory DB
     if (filesDB[key]) {
       filesDB[key] = filesDB[key].filter((f) => f.public_id !== public_id);
     }
