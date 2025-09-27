@@ -4,8 +4,7 @@ const fileUpload = require("express-fileupload");
 const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
-const cloudinary = require("./cloudinary");
-const requireAuth = require("./verifyClerk"); // ✅ fixed
+const cloudinary = require("./cloudinary"); // no Clerk auth now
 
 const app = express();
 
@@ -34,7 +33,7 @@ app.use(express.json());
 app.use(fileUpload({ createParentPath: true }));
 
 // ------------------- In-memory DB -------------------
-let filesDB = {}; // replace with real DB in production
+let filesDB = {}; // replace with real DB later
 
 // ------------------- Routes -------------------
 const router = express.Router();
@@ -48,8 +47,8 @@ router.get("/namuna/:year/:id", (req, res) => {
   return res.json(files);
 });
 
-// ✅ PROTECTED: Upload file
-router.post("/upload", requireAuth, async (req, res) => {
+// ✅ PUBLIC: Upload file (Clerk removed)
+router.post("/upload", async (req, res) => {
   try {
     if (!req.files || !req.files.file) {
       return res.status(400).json({ error: "No file uploaded" });
@@ -89,8 +88,8 @@ router.post("/upload", requireAuth, async (req, res) => {
   }
 });
 
-// ✅ PROTECTED: Delete file
-router.delete("/delete", requireAuth, async (req, res) => {
+// ✅ PUBLIC: Delete file (Clerk removed)
+router.delete("/delete", async (req, res) => {
   try {
     const { year, namuna, public_id } = req.body;
 

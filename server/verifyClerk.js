@@ -15,8 +15,8 @@ module.exports = async function requireAuth(req, res, next) {
       return res.status(401).json({ error: "No token provided" });
     }
 
-    // Verify Clerk session token
-    const session = await clerk.sessions.verifyToken(token);
+    // ✅ Correct method for newer SDKs
+    const session = await clerk.sessions.verifySessionToken(token);
     if (!session) throw new Error("Invalid session token");
 
     req.user = session.user; // optional: attach user info
