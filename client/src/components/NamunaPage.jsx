@@ -37,15 +37,15 @@ export default function NamunaPage({ apiBase }) {
 
     try {
       const res = await fetch(`${apiBase}/api/delete`, {
-        method: "POST",
+        method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           public_id: file.public_id,
           year: decodedYear,
           namuna: id,
-          resource_type: file.raw?.resource_type || "image",
         }),
       });
+
       const result = await res.json();
       if (result.success) {
         setNamunaData((prev) =>
@@ -101,8 +101,11 @@ export default function NamunaPage({ apiBase }) {
       ) : (
         <div className="row">
           {namunaData.map((file) => {
-            if (!["image", "raw"].includes(file.raw?.resource_type) &&
-                file.raw?.format !== "pdf") return null;
+            if (
+              !["image", "raw"].includes(file.raw?.resource_type) &&
+              file.raw?.format !== "pdf"
+            )
+              return null;
 
             return (
               <div

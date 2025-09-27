@@ -37,13 +37,8 @@ export default function UploadModal({
       setLoading(false);
 
       if (response.ok && data?.url && data?.public_id) {
-        // Send correct structure to NamunaPage
         if (onUploaded) {
-          onUploaded({
-            public_id: data.public_id,
-            url: data.url,
-            raw: { resource_type: file.type.startsWith("image") ? "image" : "raw", format: file.name.split(".").pop() },
-          });
+          onUploaded(data); // ✅ use backend’s full metadata
         }
         onClose();
       } else {
