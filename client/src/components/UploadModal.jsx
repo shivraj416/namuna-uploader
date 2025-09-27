@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useAuth } from "@clerk/clerk-react"; // ✅ Clerk hook
+import { useAuth } from "@clerk/clerk-react";
 
 export default function UploadModal({
   show,
@@ -11,7 +11,7 @@ export default function UploadModal({
 }) {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const { getToken } = useAuth(); // ✅ Get Clerk token
+  const { getToken } = useAuth();
 
   if (!show) return null;
 
@@ -30,12 +30,12 @@ export default function UploadModal({
     fd.append("namuna", namuna);
 
     try {
-      const token = await getToken({ template: "default" }); // ✅ Clerk token
+      const token = await getToken(); // ✅ remove template
       const response = await fetch(`${apiBase}/api/upload`, {
         method: "POST",
         body: fd,
         headers: {
-          Authorization: `Bearer ${token}`, // ✅ send token for protected route
+          Authorization: `Bearer ${token}`,
         },
       });
 
