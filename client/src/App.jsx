@@ -1,4 +1,4 @@
-import CustomSignup from ".src/components/CustomSignup"; // ✅ import your custom signup
+import CustomSignup from "./src/components/CustomSignup";
 
 function App() {
   const years = generateYears();
