@@ -17,27 +17,27 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    // allow requests with no origin (like Postman, curl)
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) return callback(null, true);
     return callback(new Error("Not allowed by CORS: " + origin));
   },
-  methods: ["GET", "POST", "DELETE", "OPTIONS"], // include OPTIONS
+  methods: ["GET", "POST", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true, // needed if using auth headers
+  credentials: true,
 }));
 
 app.use(express.json());
-app.use(fileUpload({
-  createParentPath: true,
-}));
+app.use(fileUpload({ createParentPath: true }));
 
 // In-memory DB (use real DB in production)
 let filesDB = {};
 
+// Prefix all routes with /api
+const router = express.Router();
+
 // ✅ GET files for a specific Namuna
-app.get('/namuna/:year/:id', (req, res) => {
-  const decodedYear = decodeURIComponent(req.params.year); // "2025/26"
+router.get('/namuna/:year/:id', (req, res) => {
+  const decodedYear = decodeURIComponent(req.params.year);
   const { id } = req.params;
   const key = `${decodedYear}:${id}`;
   const files = filesDB[key] || [];
@@ -45,7 +45,7 @@ app.get('/namuna/:year/:id', (req, res) => {
 });
 
 // ✅ UPLOAD file to Cloudinary
-app.post('/upload', async (req, res) => {
+router.post('/upload', async (req, res) => {
   try {
     if (!req.files || !req.files.file) {
       return res.status(400).json({ error: 'No file uploaded' });
@@ -60,19 +60,15 @@ app.post('/upload', async (req, res) => {
     if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
     const tempPath = path.join(tempDir, file.name);
 
-    // Save temporarily
     await file.mv(tempPath);
 
-    // Upload to Cloudinary
     const result = await cloudinary.uploader.upload(tempPath, {
       folder: `namuna/${safeYear}/${namuna}`,
       resource_type: "auto",
     });
 
-    // Clean up temp file
     fs.unlinkSync(tempPath);
 
-    // Save in memory
     if (!filesDB[key]) filesDB[key] = [];
     filesDB[key].push({ url: result.secure_url, public_id: result.public_id });
 
@@ -84,16 +80,14 @@ app.post('/upload', async (req, res) => {
 });
 
 // ✅ DELETE file from Cloudinary
-app.delete('/delete', async (req, res) => {
+router.delete('/delete', async (req, res) => {
   try {
     const { year, namuna, public_id } = req.body;
     const safeYear = decodeURIComponent(year);
     const key = `${safeYear}:${namuna}`;
 
-    // Delete from Cloudinary
     await cloudinary.uploader.destroy(public_id);
 
-    // Remove from memory
     if (filesDB[key]) {
       filesDB[key] = filesDB[key].filter(file => file.public_id !== public_id);
     }
@@ -103,6 +97,15 @@ app.delete('/delete', async (req, res) => {
     console.error(err);
     return res.status(500).json({ error: 'Delete failed', details: err.message });
   }
+});
+
+// Use the /api prefix
+app.use('/api', router);
+
+// Optional: catch-all error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: err.message });
 });
 
 const PORT = process.env.PORT || 5000;
