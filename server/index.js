@@ -5,19 +5,22 @@ const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
 const cloudinary = require("./cloudinary");
-const requireAuth = require("./verifyClerk"); // ✅ Clerk middleware
+const requireAuth = require("./verifyClerk"); // Clerk middleware
 
 const app = express();
 
-// ✅ CORS config
+// ------------------- CORS -------------------
+// Allow your frontend domains + local dev
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
   "https://gramparule.netlify.app",
 ];
+
 app.use(
   cors({
     origin: function (origin, callback) {
+      // allow requests with no origin (like Postman or server-to-server)
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error("Not allowed by CORS: " + origin));
@@ -28,19 +31,20 @@ app.use(
   })
 );
 
+// ------------------- Middlewares -------------------
 app.use(express.json());
 app.use(fileUpload({ createParentPath: true }));
 
-// In-memory DB (replace with real DB later)
-let filesDB = {};
+// ------------------- In-memory DB -------------------
+let filesDB = {}; // replace with real DB in production
 
-// All API routes under /api
+// ------------------- Routes -------------------
 const router = express.Router();
 
-// ✅ Protect all routes with Clerk middleware
+// Protect all routes with Clerk middleware
 router.use(requireAuth);
 
-// ✅ GET files
+// GET files for a specific Namuna
 router.get("/namuna/:year/:id", (req, res) => {
   const decodedYear = decodeURIComponent(req.params.year);
   const { id } = req.params;
@@ -49,7 +53,7 @@ router.get("/namuna/:year/:id", (req, res) => {
   return res.json(files);
 });
 
-// ✅ UPLOAD file
+// UPLOAD file to Cloudinary
 router.post("/upload", async (req, res) => {
   try {
     if (!req.files || !req.files.file) {
@@ -90,7 +94,7 @@ router.post("/upload", async (req, res) => {
   }
 });
 
-// ✅ DELETE file
+// DELETE file from Cloudinary
 router.delete("/delete", async (req, res) => {
   try {
     const { year, namuna, public_id } = req.body;
@@ -110,14 +114,16 @@ router.delete("/delete", async (req, res) => {
   }
 });
 
+// ------------------- Use router -------------------
 app.use("/api", router);
 
-// Global error handler
+// ------------------- Global Error Handler -------------------
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: err.message });
 });
 
+// ------------------- Start server -------------------
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
