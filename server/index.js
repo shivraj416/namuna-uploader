@@ -48,7 +48,7 @@ router.get("/namuna/:year/:id", (req, res) => {
   return res.json(files);
 });
 
-// ✅ PROTECTED routes: upload & delete
+// ✅ PROTECTED routes: upload
 router.post("/upload", requireAuth, async (req, res) => {
   try {
     if (!req.files || !req.files.file) {
@@ -89,9 +89,16 @@ router.post("/upload", requireAuth, async (req, res) => {
   }
 });
 
+// ✅ PROTECTED route: delete
 router.delete("/delete", requireAuth, async (req, res) => {
   try {
     const { year, namuna, public_id } = req.body;
+
+    // ✅ Validate body
+    if (!year || !namuna || !public_id) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
     const safeYear = decodeURIComponent(year);
     const key = `${safeYear}:${namuna}`;
 
@@ -103,11 +110,10 @@ router.delete("/delete", requireAuth, async (req, res) => {
 
     return res.json({ success: true });
   } catch (err) {
-    console.error(err);
+    console.error("DELETE /api/delete error:", err);
     return res.status(500).json({ error: "Delete failed", details: err.message });
   }
 });
-
 
 // ------------------- Use router -------------------
 app.use("/api", router);
