@@ -9,27 +9,33 @@ const cloudinary = require('./cloudinary'); // your configured cloudinary.v2
 const app = express();
 
 // ✅ Fix CORS: allow Netlify frontend + local dev
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",         // Vite dev
-      "http://localhost:3000",         // React dev alt
-      "https://gramparule.netlify.app" // Netlify live site
-    ],
-    methods: ["GET", "POST", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+const allowedOrigins = [
+  "http://localhost:5173",         // Vite dev
+  "http://localhost:3000",         // React dev alt
+  "https://gramparule.netlify.app" // Netlify live site
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow requests with no origin (like Postman, curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error("Not allowed by CORS: " + origin));
+  },
+  methods: ["GET", "POST", "DELETE", "OPTIONS"], // include OPTIONS
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true, // needed if using auth headers
+}));
 
 app.use(express.json());
-app.use(fileUpload());
+app.use(fileUpload({
+  createParentPath: true,
+}));
 
-// In-memory DB (use real DB later)
+// In-memory DB (use real DB in production)
 let filesDB = {};
 
-/**
- * ✅ GET files for a specific Namuna
- */
+// ✅ GET files for a specific Namuna
 app.get('/namuna/:year/:id', (req, res) => {
   const decodedYear = decodeURIComponent(req.params.year); // "2025/26"
   const { id } = req.params;
@@ -38,9 +44,7 @@ app.get('/namuna/:year/:id', (req, res) => {
   return res.json(files);
 });
 
-/**
- * ✅ UPLOAD file to Cloudinary
- */
+// ✅ UPLOAD file to Cloudinary
 app.post('/upload', async (req, res) => {
   try {
     if (!req.files || !req.files.file) {
@@ -48,11 +52,13 @@ app.post('/upload', async (req, res) => {
     }
 
     const { year, namuna } = req.body;
-    const safeYear = decodeURIComponent(year); // "2025/26"
+    const safeYear = decodeURIComponent(year);
     const key = `${safeYear}:${namuna}`;
 
     const file = req.files.file;
-    const tempPath = path.join(__dirname, 'temp', file.name);
+    const tempDir = path.join(__dirname, 'temp');
+    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
+    const tempPath = path.join(tempDir, file.name);
 
     // Save temporarily
     await file.mv(tempPath);
@@ -63,7 +69,7 @@ app.post('/upload', async (req, res) => {
       resource_type: "auto",
     });
 
-    // Clean up
+    // Clean up temp file
     fs.unlinkSync(tempPath);
 
     // Save in memory
@@ -73,13 +79,11 @@ app.post('/upload', async (req, res) => {
     return res.json({ url: result.secure_url, public_id: result.public_id });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: 'Upload failed' });
+    return res.status(500).json({ error: 'Upload failed', details: err.message });
   }
 });
 
-/**
- * ✅ DELETE file from Cloudinary
- */
+// ✅ DELETE file from Cloudinary
 app.delete('/delete', async (req, res) => {
   try {
     const { year, namuna, public_id } = req.body;
@@ -97,7 +101,7 @@ app.delete('/delete', async (req, res) => {
     return res.json({ success: true });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: 'Delete failed' });
+    return res.status(500).json({ error: 'Delete failed', details: err.message });
   }
 });
 
