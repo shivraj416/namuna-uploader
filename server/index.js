@@ -10,7 +10,6 @@ const requireAuth = require("./verifyClerk"); // Clerk middleware
 const app = express();
 
 // ------------------- CORS -------------------
-// Allow your frontend domains + local dev
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
@@ -20,7 +19,6 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (like Postman or server-to-server)
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error("Not allowed by CORS: " + origin));
@@ -41,10 +39,7 @@ let filesDB = {}; // replace with real DB in production
 // ------------------- Routes -------------------
 const router = express.Router();
 
-// Protect all routes with Clerk middleware
-router.use(requireAuth);
-
-// GET files for a specific Namuna
+// ✅ PUBLIC: GET files for a specific Namuna
 router.get("/namuna/:year/:id", (req, res) => {
   const decodedYear = decodeURIComponent(req.params.year);
   const { id } = req.params;
@@ -53,8 +48,8 @@ router.get("/namuna/:year/:id", (req, res) => {
   return res.json(files);
 });
 
-// UPLOAD file to Cloudinary
-router.post("/upload", async (req, res) => {
+// ✅ PROTECTED routes: upload & delete
+router.post("/upload", requireAuth, async (req, res) => {
   try {
     if (!req.files || !req.files.file) {
       return res.status(400).json({ error: "No file uploaded" });
@@ -94,8 +89,7 @@ router.post("/upload", async (req, res) => {
   }
 });
 
-// DELETE file from Cloudinary
-router.delete("/delete", async (req, res) => {
+router.delete("/delete", requireAuth, async (req, res) => {
   try {
     const { year, namuna, public_id } = req.body;
     const safeYear = decodeURIComponent(year);
