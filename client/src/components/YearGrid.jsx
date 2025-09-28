@@ -1,11 +1,9 @@
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { NAMUNA_MAP } from "./NamunaSlot"; // import your mapping
+import { NAMUNA_MAP } from "./NamunaSlot";
 
 export default function YearGrid({ year, apiBase }) {
-  // ✅ Generate slots 1–58
   const slots = useMemo(() => Array.from({ length: 58 }, (_, i) => i + 1), []);
-
   const [filter, setFilter] = useState("");
 
   const visible = slots.filter((n) => {
@@ -18,9 +16,9 @@ export default function YearGrid({ year, apiBase }) {
     <div
       className="p-4 rounded-4"
       style={{
-        backgroundColor: "rgba(255,255,255,0.08)", // softer opacity
-        backdropFilter: "blur(6px)",              // subtle blur
-        border: "1px solid rgba(255,255,255,0.1)",
+        backgroundColor: "rgba(0, 0, 0, 0.35)", // darker transparent overlay
+        backdropFilter: "blur(6px)",
+        border: "1px solid rgba(255,255,255,0.15)",
       }}
     >
       {/* Search + Year Info */}
@@ -32,8 +30,8 @@ export default function YearGrid({ year, apiBase }) {
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             style={{
-              backgroundColor: "rgba(255,255,255,0.1)",
-              border: "1px solid rgba(255,255,255,0.15)",
+              backgroundColor: "rgba(0, 0, 0, 0.25)",
+              border: "1px solid rgba(255,255,255,0.2)",
               color: "#fff",
               backdropFilter: "blur(4px)",
             }}
@@ -43,7 +41,7 @@ export default function YearGrid({ year, apiBase }) {
           <span
             className="badge fw-semibold"
             style={{
-              background: "rgba(255,255,255,0.1)",
+              background: "rgba(0,0,0,0.25)",
               color: "#fff",
               fontSize: "0.9rem",
               padding: "0.5em 1em",
@@ -64,10 +62,10 @@ export default function YearGrid({ year, apiBase }) {
             <div key={n} className="col-6 col-md-3 col-lg-2">
               <Link
                 to={`/namuna/${encodeURIComponent(year)}/${n}`}
-                className="btn w-100 shadow-sm rounded-3 fw-semibold"
+                className="btn w-100 rounded-3 fw-semibold"
                 style={{
-                  backgroundColor: "rgba(255,255,255,0.08)", // softer
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  backgroundColor: "rgba(0,0,0,0.2)", // darker and soft
+                  border: "1px solid rgba(255,255,255,0.15)",
                   color: "#fff",
                   backdropFilter: "blur(4px)",
                 }}
