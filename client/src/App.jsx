@@ -1,19 +1,17 @@
 import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { useUser, ClerkLoaded, UserButton } from "@clerk/clerk-react";
 
-import CustomSignup from "./components/CustomSignUp.jsx";
+import CustomSignUp from "./components/CustomSignUp.jsx";
 import YearSelector from "./components/YearSelector.jsx";
 import YearGrid from "./components/YearGrid.jsx";
 import NamunaPage from "./components/NamunaPage.jsx";
 
-// ✅ Define generateYears function
+// generateYears function
 function generateYears(start = 2000, end = new Date().getFullYear()) {
   const years = [];
-  for (let i = start; i <= end; i++) {
-    years.push(i);
-  }
-  return years.reverse(); // optional: latest year first
+  for (let i = start; i <= end; i++) years.push(i);
+  return years.reverse();
 }
 
 function App() {
@@ -23,63 +21,57 @@ function App() {
     import.meta.env.VITE_API_BASE ||
     (import.meta.env.MODE === "development" ? "http://localhost:5000" : "");
 
+  const { isSignedIn, isLoaded } = useUser();
+
+  // Wait until Clerk is loaded
+  if (!isLoaded) return null;
+
   return (
     <Router>
-      <div className="container py-3">
-        <header className="d-flex justify-content-between align-items-center mb-4">
-          <h1 className="h3">Namuna Uploader</h1>
-          <SignedIn>
-            <UserButton afterSignOutUrl="/sign-up" />
-          </SignedIn>
-        </header>
+      <Routes>
+        {/* Main app route */}
+        <Route
+          path="/"
+          element={
+            isSignedIn ? (
+              <>
+                <header className="d-flex justify-content-between align-items-center mb-4">
+                  <h1 className="h3">Namuna Uploader</h1>
+                  <UserButton afterSignOutUrl="/sign-up" />
+                </header>
 
-        <Routes>
-          {/* Signed-in routes */}
-          <Route
-            path="/"
-            element={
-              <SignedIn>
-                <>
-                  <YearSelector
-                    years={years}
-                    selectedYear={selectedYear}
-                    onChange={setSelectedYear}
-                  />
-                  <YearGrid year={selectedYear} apiBase={apiBase} />
-                </>
-              </SignedIn>
-            }
-          />
-          <Route
-            path="/namuna/:year/:id"
-            element={
-              <SignedIn>
-                <NamunaPage apiBase={apiBase} />
-              </SignedIn>
-            }
-          />
+                <YearSelector
+                  years={years}
+                  selectedYear={selectedYear}
+                  onChange={setSelectedYear}
+                />
+                <YearGrid year={selectedYear} apiBase={apiBase} />
+              </>
+            ) : (
+              <Navigate to="/sign-up" />
+            )
+          }
+        />
 
-          {/* Custom Signup for not-signed-in users */}
-          <Route
-            path="/sign-up"
-            element={
-              <SignedOut>
-                <CustomSignup />
-              </SignedOut>
-            }
-          />
+        {/* Namuna detail page */}
+        <Route
+          path="/namuna/:year/:id"
+          element={
+            isSignedIn ? <NamunaPage apiBase={apiBase} /> : <Navigate to="/sign-up" />
+          }
+        />
 
-          {/* Fallback: redirect any other route to signup if signed out */}
-          <Route
-            path="*"
-            element={
-              <SignedOut>
-                <CustomSignup />
-              </SignedOut>
-            }
-          />
-        </Routes>
-      </div>
+        {/* Signup page */}
+        <Route
+          path="/sign-up"
+          element={
+            isSignedIn ? <Navigate to="/" /> : <CustomSignUp afterSignUpUrl="/" />
+          }
+        />
+
+        {/* Catch-all redirect */}
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
     </Router>
   );
 }

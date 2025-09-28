@@ -1,5 +1,5 @@
 import React from "react";
-import { SignUp } from "@clerk/clerk-react";
+import { SignUp, SignIn } from "@clerk/clerk-react";
 
 export default function CustomSignUp() {
   return (
@@ -9,43 +9,27 @@ export default function CustomSignUp() {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        background:
-          "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)", // Smooth gradient
-        padding: "1rem",
+        background: "linear-gradient(to right, #4facfe, #00f2fe)", // Nice background
+        padding: "2rem",
       }}
     >
       <div
         style={{
-          maxWidth: "420px",
+          maxWidth: "400px",
           width: "100%",
-          padding: "2.5rem 2rem",
-          backgroundColor: "rgba(255, 255, 255, 0.97)",
-          borderRadius: "16px",
-          boxShadow: "0 8px 30px rgba(0,0,0,0.25)",
-          textAlign: "center",
+          padding: "2rem",
+          backgroundColor: "rgba(255,255,255,0.95)",
+          borderRadius: "12px",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
         }}
       >
-        <h2
-          style={{
-            marginBottom: "1.5rem",
-            color: "#333",
-            fontSize: "1.8rem",
-            fontWeight: "600",
-          }}
-        >
+        <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>
           Welcome to Namuna Uploader
         </h2>
-
         <SignUp
           path="/sign-up"
           routing="path"
           signInUrl="/sign-in"
-          appearance={{
-            elements: {
-              formButtonPrimary:
-                "bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2 px-4 w-full font-semibold",
-            },
-          }}
         />
       </div>
     </div>
