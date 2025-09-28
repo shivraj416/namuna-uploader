@@ -1,5 +1,5 @@
 import React from "react";
-import { SignUp, SignIn } from "@clerk/clerk-react";
+import { SignUp } from "@clerk/clerk-react";
 
 export default function CustomSignUp() {
   return (
@@ -9,7 +9,7 @@ export default function CustomSignUp() {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        background: "linear-gradient(to right, #4facfe, #00f2fe)", // Nice background
+        background: "linear-gradient(to right, #4facfe, #00f2fe)", // Nice gradient background
         padding: "2rem",
       }}
     >
@@ -30,6 +30,7 @@ export default function CustomSignUp() {
           path="/sign-up"
           routing="path"
           signInUrl="/sign-in"
+          afterSignUpUrl="/"   // ✅ redirect new users back to your app
         />
       </div>
     </div>
