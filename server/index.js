@@ -4,7 +4,7 @@ const fileUpload = require("express-fileupload");
 const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
-const cloudinary = require("./cloudinary"); // no Clerk auth now
+const cloudinary = require("./cloudinary"); // your Cloudinary config
 
 const app = express();
 
@@ -47,7 +47,7 @@ router.get("/namuna/:year/:id", (req, res) => {
   return res.json(files);
 });
 
-// ✅ PUBLIC: Upload file (Clerk removed)
+// ✅ PUBLIC: Upload file
 router.post("/upload", async (req, res) => {
   try {
     if (!req.files || !req.files.file) {
@@ -84,11 +84,13 @@ router.post("/upload", async (req, res) => {
     return res.json(fileData);
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: "Upload failed", details: err.message });
+    return res
+      .status(500)
+      .json({ error: "Upload failed", details: err.message });
   }
 });
 
-// ✅ PUBLIC: Delete file (Clerk removed)
+// ✅ PUBLIC: Delete file
 router.delete("/delete", async (req, res) => {
   try {
     const { year, namuna, public_id } = req.body;
@@ -111,7 +113,9 @@ router.delete("/delete", async (req, res) => {
     return res.json({ success: true });
   } catch (err) {
     console.error("DELETE /api/delete error:", err);
-    return res.status(500).json({ error: "Delete failed", details: err.message });
+    return res
+      .status(500)
+      .json({ error: "Delete failed", details: err.message });
   }
 });
 
