@@ -36,7 +36,7 @@ function App() {
             isSignedIn ? (
               <>
                 <header className="d-flex justify-content-between align-items-center mb-4">
-                  <h1 className="h3">Namuna Uploader</h1>
+                  <h1 className="h3">आपले सहर्ष स्वागत आहे ग्रामपंचायत पारुळे नमुना आराखड्यामध्ये!!</h1>
                   <UserButton afterSignOutUrl="/sign-up" />
                 </header>
 
