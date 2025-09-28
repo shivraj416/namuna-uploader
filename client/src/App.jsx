@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useUser, ClerkLoaded, UserButton } from "@clerk/clerk-react";
-
-import CustomSignUp from "./components/CustomSignUp.jsx";
 import YearSelector from "./components/YearSelector.jsx";
 import YearGrid from "./components/YearGrid.jsx";
 import NamunaPage from "./components/NamunaPage.jsx";
