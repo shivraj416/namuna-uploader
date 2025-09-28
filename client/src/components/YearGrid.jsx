@@ -18,9 +18,9 @@ export default function YearGrid({ year, apiBase }) {
     <div
       className="p-4 rounded-4"
       style={{
-        backgroundColor: "rgba(255,255,255,0.2)",
-        backdropFilter: "blur(4px)",
-        border: "1px solid rgba(255,255,255,0.3)",
+        backgroundColor: "rgba(255,255,255,0.08)", // softer opacity
+        backdropFilter: "blur(6px)",              // subtle blur
+        border: "1px solid rgba(255,255,255,0.1)",
       }}
     >
       {/* Search + Year Info */}
@@ -32,9 +32,10 @@ export default function YearGrid({ year, apiBase }) {
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             style={{
-              backgroundColor: "rgba(255,255,255,0.3)",
-              border: "1px solid rgba(255,255,255,0.5)",
+              backgroundColor: "rgba(255,255,255,0.1)",
+              border: "1px solid rgba(255,255,255,0.15)",
               color: "#fff",
+              backdropFilter: "blur(4px)",
             }}
           />
         </div>
@@ -42,11 +43,12 @@ export default function YearGrid({ year, apiBase }) {
           <span
             className="badge fw-semibold"
             style={{
-              background: "rgba(255,255,255,0.3)",
+              background: "rgba(255,255,255,0.1)",
               color: "#fff",
               fontSize: "0.9rem",
               padding: "0.5em 1em",
               borderRadius: "20px",
+              backdropFilter: "blur(4px)",
             }}
           >
             Year: {year}
@@ -64,8 +66,8 @@ export default function YearGrid({ year, apiBase }) {
                 to={`/namuna/${encodeURIComponent(year)}/${n}`}
                 className="btn w-100 shadow-sm rounded-3 fw-semibold"
                 style={{
-                  backgroundColor: "rgba(255,255,255,0.2)",
-                  border: "1px solid rgba(255,255,255,0.4)",
+                  backgroundColor: "rgba(255,255,255,0.08)", // softer
+                  border: "1px solid rgba(255,255,255,0.1)",
                   color: "#fff",
                   backdropFilter: "blur(4px)",
                 }}
