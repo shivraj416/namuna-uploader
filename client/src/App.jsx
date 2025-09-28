@@ -34,19 +34,39 @@ function App() {
           path="/"
           element={
             isSignedIn ? (
-              <>
-                <header className="d-flex justify-content-between align-items-center mb-4">
-                  <h1 className="h3">आपले सहर्ष स्वागत आहे ग्रामपंचायत पारुळे नमुना आराखड्यामध्ये!!</h1>
-                  <UserButton afterSignOutUrl="/sign-up" />
+              <div className="container py-4">
+                <header
+                  className="d-flex justify-content-between align-items-center mb-4 p-3 shadow-sm rounded"
+                  style={{
+                    background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
+                    color: "white",
+                  }}
+                >
+                  <h1
+                    className="h4 fw-bold m-0 text-center"
+                    style={{ flexGrow: 1, textShadow: "1px 1px 2px rgba(0,0,0,0.3)" }}
+                  >
+                    आपले सहर्ष स्वागत आहे <br />
+                    ग्रामपंचायत परुळे नमुना आराखड्यामध्ये!!
+                  </h1>
+                  <div className="ms-3">
+                    <UserButton afterSignOutUrl="/sign-up" />
+                  </div>
                 </header>
 
-                <YearSelector
-                  years={years}
-                  selectedYear={selectedYear}
-                  onChange={setSelectedYear}
-                />
-                <YearGrid year={selectedYear} apiBase={apiBase} />
-              </>
+                <div className="card shadow-sm p-4 mb-4 border-0 rounded-4">
+                  <h2 className="h5 text-primary fw-bold mb-3">वर्ष निवडा</h2>
+                  <YearSelector
+                    years={years}
+                    selectedYear={selectedYear}
+                    onChange={setSelectedYear}
+                  />
+                </div>
+
+                <div className="card shadow-sm p-4 border-0 rounded-4">
+                  <YearGrid year={selectedYear} apiBase={apiBase} />
+                </div>
+              </div>
             ) : (
               <Navigate to="/sign-up" />
             )
