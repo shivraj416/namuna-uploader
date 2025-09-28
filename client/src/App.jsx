@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { useUser, ClerkLoaded, UserButton } from "@clerk/clerk-react";
+import { useUser, UserButton, SignUp } from "@clerk/clerk-react";
 import YearSelector from "./components/YearSelector.jsx";
 import YearGrid from "./components/YearGrid.jsx";
 import NamunaPage from "./components/NamunaPage.jsx";
@@ -62,9 +62,7 @@ function App() {
         {/* Signup page */}
         <Route
           path="/sign-up"
-          element={
-            isSignedIn ? <Navigate to="/" /> : <CustomSignUp afterSignUpUrl="/" />
-          }
+          element={isSignedIn ? <Navigate to="/" /> : <SignUp afterSignUpUrl="/" />}
         />
 
         {/* Catch-all redirect */}
