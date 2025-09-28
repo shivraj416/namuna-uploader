@@ -34,37 +34,53 @@ function App() {
           path="/"
           element={
             isSignedIn ? (
-              <div className="container py-4">
-                <header
-                  className="d-flex justify-content-between align-items-center mb-4 p-3 shadow-sm rounded"
-                  style={{
-                    background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
-                    color: "white",
-                  }}
-                >
-                  <h1
-                    className="h4 fw-bold m-0 text-center"
-                    style={{ flexGrow: 1, textShadow: "1px 1px 2px rgba(0,0,0,0.3)" }}
+              <div
+                className="min-vh-100 d-flex flex-column"
+                style={{
+                  backgroundImage: "url('/images/grampanchayat-bg.jpg')", 
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundAttachment: "fixed",
+                }}
+              >
+                <div className="container py-4">
+                  <header
+                    className="d-flex justify-content-between align-items-center mb-4 p-3 shadow-sm rounded"
+                    style={{
+                      background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
+                      color: "white",
+                    }}
                   >
-                    आपले सहर्ष स्वागत आहे <br />
-                    ग्रामपंचायत परुळे नमुना आराखड्यामध्ये!!
-                  </h1>
-                  <div className="ms-3">
-                    <UserButton afterSignOutUrl="/sign-up" />
+                    <h1
+                      className="h4 fw-bold m-0 text-center"
+                      style={{ flexGrow: 1, textShadow: "1px 1px 2px rgba(0,0,0,0.3)" }}
+                    >
+                      आपले सहर्ष स्वागत आहे <br />
+                      ग्रामपंचायत परुळे नमुना आराखड्यामध्ये!!
+                    </h1>
+                    <div className="ms-3">
+                      <UserButton afterSignOutUrl="/sign-up" />
+                    </div>
+                  </header>
+
+                  <div
+                    className="card shadow-sm p-4 mb-4 border-0 rounded-4"
+                    style={{ backgroundColor: "rgba(255,255,255,0.9)" }} 
+                  >
+                    <h2 className="h5 text-primary fw-bold mb-3">वर्ष निवडा</h2>
+                    <YearSelector
+                      years={years}
+                      selectedYear={selectedYear}
+                      onChange={setSelectedYear}
+                    />
                   </div>
-                </header>
 
-                <div className="card shadow-sm p-4 mb-4 border-0 rounded-4">
-                  <h2 className="h5 text-primary fw-bold mb-3">वर्ष निवडा</h2>
-                  <YearSelector
-                    years={years}
-                    selectedYear={selectedYear}
-                    onChange={setSelectedYear}
-                  />
-                </div>
-
-                <div className="card shadow-sm p-4 border-0 rounded-4">
-                  <YearGrid year={selectedYear} apiBase={apiBase} />
+                  <div
+                    className="card shadow-sm p-4 border-0 rounded-4"
+                    style={{ backgroundColor: "rgba(255,255,255,0.9)" }} 
+                  >
+                    <YearGrid year={selectedYear} apiBase={apiBase} />
+                  </div>
                 </div>
               </div>
             ) : (
