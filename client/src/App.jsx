@@ -5,11 +5,13 @@ import YearSelector from "./components/YearSelector.jsx";
 import YearGrid from "./components/YearGrid.jsx";
 import NamunaPage from "./components/NamunaPage.jsx";
 
-// generateYears function
-function generateYears(start = 2000, end = new Date().getFullYear()) {
+// generateYears function (2010/11 to 2040/41 format)
+function generateYears(start = 2010, end = 2040) {
   const years = [];
-  for (let i = start; i <= end; i++) years.push(i);
-  return years.reverse();
+  for (let i = start; i <= end; i++) {
+    years.push(`${i}/${(i + 1).toString().slice(-2)}`);
+  }
+  return years;
 }
 
 function App() {
