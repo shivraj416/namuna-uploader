@@ -15,7 +15,14 @@ export default function YearGrid({ year, apiBase }) {
   });
 
   return (
-    <div className="card shadow-sm p-4 border-0 rounded-4">
+    <div
+      className="p-4 rounded-4"
+      style={{
+        backgroundColor: "rgba(255,255,255,0.2)",
+        backdropFilter: "blur(4px)",
+        border: "1px solid rgba(255,255,255,0.3)",
+      }}
+    >
       {/* Search + Year Info */}
       <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <div className="flex-grow-1 me-2">
@@ -24,15 +31,21 @@ export default function YearGrid({ year, apiBase }) {
             className="form-control rounded-pill px-3"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
+            style={{
+              backgroundColor: "rgba(255,255,255,0.3)",
+              border: "1px solid rgba(255,255,255,0.5)",
+              color: "#fff",
+            }}
           />
         </div>
         <div>
           <span
-            className="badge bg-gradient"
+            className="badge fw-semibold"
             style={{
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              background: "rgba(255,255,255,0.3)",
+              color: "#fff",
               fontSize: "0.9rem",
-              padding: "0.6em 1em",
+              padding: "0.5em 1em",
               borderRadius: "20px",
             }}
           >
@@ -49,11 +62,12 @@ export default function YearGrid({ year, apiBase }) {
             <div key={n} className="col-6 col-md-3 col-lg-2">
               <Link
                 to={`/namuna/${encodeURIComponent(year)}/${n}`}
-                className="btn btn-primary w-100 shadow-sm rounded-3 fw-semibold"
+                className="btn w-100 shadow-sm rounded-3 fw-semibold"
                 style={{
-                  background: "linear-gradient(135deg, #43cea2 0%, #185a9d 100%)",
-                  border: "none",
-                  color: "white",
+                  backgroundColor: "rgba(255,255,255,0.2)",
+                  border: "1px solid rgba(255,255,255,0.4)",
+                  color: "#fff",
+                  backdropFilter: "blur(4px)",
                 }}
               >
                 {label}
