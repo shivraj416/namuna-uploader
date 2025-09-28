@@ -1,4 +1,20 @@
+import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
+
 import CustomSignup from "./components/CustomSignUp.jsx";
+import YearSelector from "./components/YearSelector.jsx";
+import YearGrid from "./components/YearGrid.jsx";
+import NamunaPage from "./components/NamunaPage.jsx";
+
+// ✅ Define generateYears function
+function generateYears(start = 2000, end = new Date().getFullYear()) {
+  const years = [];
+  for (let i = start; i <= end; i++) {
+    years.push(i);
+  }
+  return years.reverse(); // optional: latest year first
+}
 
 function App() {
   const years = generateYears();
