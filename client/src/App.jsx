@@ -1,63 +1,56 @@
-import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React, { useState, useMemo } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+
 import { useUser, UserButton, SignUp } from "@clerk/clerk-react";
+
 import YearSelector from "./components/YearSelector.jsx";
 import YearGrid from "./components/YearGrid.jsx";
 import NamunaPage from "./components/NamunaPage.jsx";
 
-// generateYears function (2010/11 to 2040/41 format)
+// ---------------------------------------------
+// Generate years only once (performance boost)
+// ---------------------------------------------
 function generateYears(start = 2010, end = 2040) {
-  const years = [];
-  for (let i = start; i <= end; i++) {
-    years.push(`${i}/${(i + 1).toString().slice(-2)}`);
-  }
-  return years;
+  return Array.from({ length: end - start + 1 }, (_, i) => {
+    const y = start + i;
+    return `${y}/${(y + 1).toString().slice(-2)}`;
+  });
 }
 
 function App() {
-  const years = generateYears();
+  const years = useMemo(() => generateYears(), []);
   const [selectedYear, setSelectedYear] = useState(years[0]);
-  const apiBase =
-    import.meta.env.VITE_API_BASE ||
-    (import.meta.env.MODE === "development" ? "http://localhost:5000" : "");
+
+  // Cleanest API base logic
+  const apiBase = useMemo(() => {
+    if (import.meta.env.MODE === "development") return "http://localhost:5000";
+    return import.meta.env.VITE_API_BASE || "";
+  }, []);
 
   const { isSignedIn, isLoaded } = useUser();
 
-  // Wait until Clerk is loaded
   if (!isLoaded) return null;
 
   return (
     <Router>
       <Routes>
-        {/* Main app route */}
+        {/* ---------------------------------------------------
+           MAIN APP (after login)
+        ---------------------------------------------------- */}
         <Route
           path="/"
           element={
             isSignedIn ? (
-              <div
-                className="min-vh-100 d-flex flex-column"
-                style={{
-                  backgroundImage: "url('/images/grampanchayat-bg.jpg')",
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  backgroundAttachment: "fixed",
-                }}
-              >
+              <div className="page-bg min-vh-100 d-flex flex-column">
                 <div className="container py-4">
-                  <header
-                    className="d-flex justify-content-between align-items-center mb-4 p-3 rounded"
-                    style={{
-                      background: "rgba(0,0,0,0.4)", // translucent black for readability
-                      color: "white",
-                    }}
-                  >
-                    <h1
-                      className="h4 fw-bold m-0 text-center"
-                      style={{
-                        flexGrow: 1,
-                        textShadow: "1px 1px 2px rgba(0,0,0,0.6)",
-                      }}
-                    >
+                  {/* HEADER */}
+                  <header className="app-header d-flex justify-content-between align-items-center mb-4 p-3 rounded-4 shadow">
+                    <h1 className="h4 fw-bold m-0 text-center flex-grow-1 title-text">
                       आपले सहर्ष स्वागत आहे <br />
                       ग्रामपंचायत परुळे नमुना आराखड्यामध्ये!!
                     </h1>
@@ -66,16 +59,12 @@ function App() {
                     </div>
                   </header>
 
-                  {/* Transparent Year Selector */}
-                  <div
-                    className="p-4 mb-4 rounded-4"
-                    style={{
-                      backgroundColor: "rgba(255,255,255,0.2)", // very light transparency
-                      backdropFilter: "blur(4px)", // glass effect
-                      border: "1px solid rgba(255,255,255,0.3)",
-                    }}
-                  >
-                    <h2 className="h5 text-white fw-bold mb-3">वर्ष निवडा</h2>
+                  {/* YEAR SELECTOR */}
+                  <div className="glass-box p-4 mb-4 rounded-4">
+                    <h2 className="h5 fw-bold mb-3 text-white">
+                      वर्ष निवडा
+                    </h2>
+
                     <YearSelector
                       years={years}
                       selectedYear={selectedYear}
@@ -83,15 +72,8 @@ function App() {
                     />
                   </div>
 
-                  {/* Transparent Year Grid */}
-                  <div
-                    className="p-4 rounded-4"
-                    style={{
-                      backgroundColor: "rgba(255,255,255,0.2)",
-                      backdropFilter: "blur(4px)",
-                      border: "1px solid rgba(255,255,255,0.3)",
-                    }}
-                  >
+                  {/* NAMUNA GRID */}
+                  <div className="glass-box p-4 rounded-4">
                     <YearGrid year={selectedYear} apiBase={apiBase} />
                   </div>
                 </div>
@@ -102,21 +84,35 @@ function App() {
           }
         />
 
-        {/* Namuna detail page */}
+        {/* ---------------------------------------------------
+           NAMUNA DETAIL PAGE
+        ---------------------------------------------------- */}
         <Route
           path="/namuna/:year/:id"
           element={
-            isSignedIn ? <NamunaPage apiBase={apiBase} /> : <Navigate to="/sign-up" />
+            isSignedIn ? (
+              <NamunaPage apiBase={apiBase} />
+            ) : (
+              <Navigate to="/sign-up" />
+            )
           }
         />
 
-        {/* Signup page */}
+        {/* ---------------------------------------------------
+           SIGN UP PAGE
+        ---------------------------------------------------- */}
         <Route
           path="/sign-up"
-          element={isSignedIn ? <Navigate to="/" /> : <SignUp afterSignUpUrl="/" />}
+          element={
+            isSignedIn ? (
+              <Navigate to="/" />
+            ) : (
+              <SignUp afterSignUpUrl="/" />
+            )
+          }
         />
 
-        {/* Catch-all redirect */}
+        {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
